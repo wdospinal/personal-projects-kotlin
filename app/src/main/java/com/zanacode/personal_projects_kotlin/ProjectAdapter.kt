@@ -6,52 +6,68 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.zanacode.personal_projects_kotlin.model.Project
+import kotlin.properties.Delegates
 
 /**
  * Created by dospinal on 13/07/2017.
  */
 
-class ProjectAdapter// Provide a suitable constructor (depends on the kind of dataset)
-(private val mDataset: Array<Project>) : RecyclerView.Adapter<ProjectAdapter.ViewHolder>() {
+class ProjectAdapter : RecyclerView.Adapter<ProjectAdapter.ViewHolder>() {
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
-    class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        // each data item is just a string in this case
 
-        var mName: TextView
-        var mUrl: TextView
-        var mContent: TextView
-        var mLikes: TextView
+    //SE INICIALIZA LA LISTA VACIA
+    var items: MutableList<Project> by
+    Delegates.observable(mutableListOf(), { prop, old, new -> notifyDataSetChanged() })
 
-        init {
-            mName = v.findViewById(R.id.name) as TextView
-            mUrl = v.findViewById(R.id.url) as TextView
-            mContent = v.findViewById(R.id.url) as TextView
-            mLikes = v.findViewById(R.id.likes) as TextView
-        }
-    }
+    //LISTENER PARA EL LLAMADO DESDE LA ACTIVIDAD
+    var onItemClickListener: ((Int) -> Unit)? = null
 
-    // Create new views (invoked by the layout manager)
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProjectAdapter.ViewHolder {
-        // create a new view
+    override fun getItemCount() = items.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder? {
         val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.card_project, parent, false)
-        val vh = ViewHolder(v)
-        return vh
+        return ViewHolder(v, onItemClickListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.mName.text = mDataset[position].name
-        holder.mUrl.text = mDataset[position].url
-        holder.mContent.text = mDataset[position].content
-        holder.mLikes.text = mDataset[position].likes.toString()
-
+        holder.bindHolder(items[position])
     }
 
-    override fun getItemCount(): Int {
-        return mDataset.size
+    fun getItemAt(mPos: Int) = items[mPos]
 
+    //ELIMINAR
+    fun removeItemByObject(mProject: Project){
+        val mPosition = items.indexOfFirst { it.name == mProject.name }
+        items.removeAt(mPosition)
+        notifyItemRemoved(mPosition)
+    }
+
+    //AGREGAR
+    fun add(mProject: Project){
+        items.add(mProject)
+        notifyDataSetChanged()
+    }
+
+    //ACTUALIZAR
+    fun update(mProject: Project){
+        val mPosition = items.indexOfFirst { it.name == mProject.name }
+        items[mPosition] = mProject
+        notifyItemChanged(mPosition)
+    }
+
+    class ViewHolder(v: View, var onItemClickListener: ((Int) -> Unit)?) :
+            RecyclerView.ViewHolder(v) {
+        var mName = v.findViewById(R.id.name) as TextView
+        var mUrl = v.findViewById(R.id.url) as TextView
+        var mContent = v.findViewById(R.id.content) as TextView
+        var mLikes = v.findViewById(R.id.likes) as TextView
+
+        fun bindHolder(mProject: Project){
+            mName.text = mProject.name
+            mUrl.text = mProject.url
+            mContent.text =mProject.content
+            mLikes.text = "(" + mProject.likes.toString() + ")"
+        }
     }
 }

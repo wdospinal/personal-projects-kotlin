@@ -3,4 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="carBackground">#ED9B40</color>
+    <color name="colorTitle">#61C9A8</color>
+    <color name="colorBackground">#C6E0FF</color>
 </resources>
